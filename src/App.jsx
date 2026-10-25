@@ -195,49 +195,6 @@ function sellPlayer() {
   );
 }
 
-
-  
-setPurchases((prev) => [
-  {
-    player: player.name,
-    team: leader,
-    price: bid,
-  },
-  ...prev,
-]);
-
-setSold(true);
-setActivity((a) =>
-  [`${player.name} SOLD to ${leader} for ₹${bid.toFixed(2)} Cr`, ...a].slice(0, 5)
-);
-
-
-  const winningTeam = teamData.find((t) => t.short === leader);
-
-  if (!winningTeam || winningTeam.purse < bid) {
-    alert("Sale failed: check team purse.");
-    return;
-  }
-
-  setTeamData((prev) =>
-    prev.map((team) =>
-      team.short === leader
-        ? {
-            ...team,
-            purse: Number((team.purse - bid).toFixed(2)),
-            spent: Number((team.spent + bid).toFixed(2)),
-            players: team.players + 1,
-          }
-        : team
-    )
-  );
-
-  setSold(true);
-  setActivity((a) =>
-    [`${player.name} SOLD to ${leader} for ₹${bid.toFixed(2)} Cr`, ...a].slice(0, 5)
-  );
-}
-
 const filteredTeams = teamData.filter((team) =>
   team.name.toLowerCase().includes(search.toLowerCase())
 );
