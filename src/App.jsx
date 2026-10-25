@@ -51,6 +51,13 @@ function App() {
 
   const player = players[playerIndex];
   const currentTeam = teamData[activeTeam];
+  const winningTeam = teamData.find(
+  (team) => team.short === leader
+);
+
+const priceIncrease = player.base > 0
+  ? (((bid - player.base) / player.base) * 100).toFixed(0)
+  : 0;
   const [bidHistory, setBidHistory] = useState([]);
 
 
@@ -229,6 +236,38 @@ const filteredTeams = teamData.filter((team) =>
             </section>
 
             <section className="activity-card">
+
+              {sold && (
+  <section className="activity-card">
+    <div className="activity-head">
+      <h3><Medal size={17} /> Auction Result</h3>
+      <span>{leader ? "SOLD" : "UNSOLD"}</span>
+    </div>
+
+    {leader && winningTeam ? (
+      <>
+        <div className="activity-item">
+          <span className="activity-dot bright" />
+          <span>
+            <strong>{player.name}</strong> sold to{" "}
+            <strong>{winningTeam.name}</strong>
+          </span>
+          <time>{money(bid)}</time>
+        </div>
+
+        <div className="activity-item">
+          <span className="activity-dot bright" />
+          <span>Base price: {money(player.base)}</span>
+          <time>+{priceIncrease}%</time>
+        </div>
+      </>
+    ) : (
+      <p style={{ padding: "12px 0", color: "#999" }}>
+        {player.name} went unsold. No team placed a bid.
+      </p>
+    )}
+  </section>
+)}
   <div className="activity-head">
     <h3><Gavel size={17} /> Bid History</h3>
     <span>{bidHistory.length} BIDS</span>
