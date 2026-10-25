@@ -52,6 +52,27 @@ function App() {
   const player = players[playerIndex];
   const currentTeam = teamData[activeTeam];
 
+
+  function resetAuction() {
+  const confirmed = window.confirm(
+    "Are you sure you want to reset the entire auction?"
+  );
+
+  if (!confirmed) return;
+
+  setPlayerIndex(0);
+  setBid(players[0].base);
+  setLeader(null);
+  setSold(false);
+  setActiveTeam(0);
+  setTeamData(teams);
+  setActivity([
+    "Auction has been reset",
+    "Auction room initialized",
+  ]);
+  setSearch("");
+}
+
   function nextPlayer() {
     setPlayerIndex((i) => (i + 1) % players.length);
     setBid(2);
@@ -178,6 +199,7 @@ const filteredTeams = teamData.filter((team) =>
         <div className="content-grid">
           <section className="auction-column">
             <div className="section-heading"><div><span className="eyebrow">UP NEXT · PLAYER LOT {String(124 + playerIndex + 1).padStart(3, "0")}</span><h2>Live bidding <span className="live-tag"><i /> LIVE</span></h2></div><button className="outline-btn" onClick={nextPlayer}>Skip player <ArrowUpRight size={15} /></button></div>
+            <button className="outline-btn" onClick={resetAuction}>Reset Auction</button>
 
             <article className={`player-card ${sold ? "player-sold" : ""}`}>
               <div className="player-card-bg">{player.initials}</div>
