@@ -83,13 +83,26 @@ function resetAuction() {
   setBidHistory([]);
   setPurchases([]);
 }
-  function nextPlayer() {
-    setPlayerIndex((i) => (i + 1) % players.length);
-    setBid(2);
-    setLeader(null);
-    setSold(false);
-    setActivity((a) => ["Next player is on the block", ...a].slice(0, 5));
+
+function nextPlayer() {
+  if (playerIndex === players.length - 1) {
+    setActivity((a) => [
+      "All players have been viewed",
+      ...a,
+    ].slice(0, 5));
+    return;
   }
+
+  setPlayerIndex((i) => i + 1);
+  setBid(2);
+  setLeader(null);
+  setSold(false);
+  setActivity((a) => [
+    "Next player is on the block",
+    ...a,
+  ].slice(0, 5));
+}
+
 
 function placeBid() {
   if (sold) return;
@@ -123,11 +136,65 @@ function placeBid() {
   );
 }
 
+
 function sellPlayer() {
   if (sold) {
     nextPlayer();
     return;
   }
+
+  // A player cannot be sold without a winning team.
+  if (!leader) {
+    setSold(true);
+    setActivity((a) =>
+      [`${player.name} went UNSOLD`, ...a].slice(0, 5)
+    );
+    return;
+  }
+
+  const winningTeam = teamData.find(
+    (team) => team.short === leader
+  );
+
+  // Validate the sale before changing any state.
+  if (!winningTeam || winningTeam.purse < bid) {
+    alert("Sale failed: check team purse.");
+    return;
+  }
+
+  // Deduct the winning bid from the team's purse.
+  setTeamData((prev) =>
+    prev.map((team) =>
+      team.short === leader
+        ? {
+            ...team,
+            purse: Number((team.purse - bid).toFixed(2)),
+            spent: Number((team.spent + bid).toFixed(2)),
+            players: team.players + 1,
+          }
+        : team
+    )
+  );
+
+  // Record the successful purchase.
+  setPurchases((prev) => [
+    {
+      player: player.name,
+      team: leader,
+      price: bid,
+    },
+    ...prev,
+  ]);
+
+  setSold(true);
+  setActivity((a) =>
+    [
+      `${player.name} SOLD to ${leader} for ₹${bid.toFixed(2)} Cr`,
+      ...a,
+    ].slice(0, 5)
+  );
+}
+
 
   
 setPurchases((prev) => [
