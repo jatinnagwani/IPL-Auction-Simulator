@@ -352,7 +352,12 @@ const filteredTeams = teamData.filter((team) =>
 
     <div className="team-list">
       {filteredTeams.map(team => (
-        <div className="purse-team" key={team.short}>
+        <div
+  className="purse-team"
+  key={team.short}
+  onClick={() => setActiveTeam(teamData.findIndex(t => t.short === team.short))}
+  style={{ cursor: "pointer" }}
+>
           <div className="purse-team-top">
             <div
               className="team-emblem large"
