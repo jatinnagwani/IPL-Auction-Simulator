@@ -51,9 +51,10 @@ function App() {
 
   const player = players[playerIndex];
   const currentTeam = teamData[activeTeam];
+  const [bidHistory, setBidHistory] = useState([]);
 
 
-  function resetAuction() {
+function resetAuction() {
   const confirmed = window.confirm(
     "Are you sure you want to reset the entire auction?"
   );
@@ -71,8 +72,8 @@ function App() {
     "Auction room initialized",
   ]);
   setSearch("");
+  setBidHistory([]);
 }
-
   function nextPlayer() {
     setPlayerIndex((i) => (i + 1) % players.length);
     setBid(2);
@@ -98,6 +99,15 @@ function placeBid() {
 
   setBid(Number(next.toFixed(2)));
   setLeader(currentTeam.short);
+
+  setBidHistory((history) => [
+    {
+      team: currentTeam.short,
+      amount: Number(next.toFixed(2)),
+      time: new Date().toLocaleTimeString(),
+    },
+    ...history,
+  ].slice(0, 10));
 
   setActivity((a) =>
     [`${currentTeam.short} bid ₹${next.toFixed(2)} Cr`, ...a].slice(0, 5)
@@ -217,6 +227,29 @@ const filteredTeams = teamData.filter((team) =>
               <div className="bid-divider" />
               <div className="bid-controls"><span className="bid-hint"><Clock3 size={15} /> {sold ? "Lot closed" : "Place your next bid"}</span><div className="bid-buttons"><button className="bid-increment" onClick={() => setBid(Math.max(0.25, bid - 0.25))} disabled={sold}>−</button><button className="bid-action" onClick={placeBid} disabled={sold}><Gavel size={18} /> BID + ₹0.25 Cr</button><button className="bid-increment" onClick={() => setBid(bid + 0.5)} disabled={sold}>+0.50</button></div><button className="sell-btn" onClick={sellPlayer}>{sold ? "NEXT PLAYER →" : "🔨  SOLD / UNSOLD"}</button></div>
             </section>
+
+            <section className="activity-card">
+  <div className="activity-head">
+    <h3><Gavel size={17} /> Bid History</h3>
+    <span>{bidHistory.length} BIDS</span>
+  </div>
+
+  {bidHistory.length === 0 ? (
+    <p style={{ padding: "12px 0", color: "#999" }}>
+      No bids yet. Place the first bid!
+    </p>
+  ) : (
+    bidHistory.map((item, index) => (
+      <div className="activity-item" key={`${item.time}-${index}`}>
+        <span className={`activity-dot ${index === 0 ? "bright" : ""}`} />
+        <span>
+          <strong>{item.team}</strong> bid {money(item.amount)}
+        </span>
+        <time>{item.time}</time>
+      </div>
+    ))
+  )}
+</section>
 
             <section className="activity-card"><div className="activity-head"><h3><Activity size={17} /> Auction activity</h3><span>LIVE FEED</span></div>{activity.map((item, i) => <div className="activity-item" key={`${item}-${i}`}><span className={`activity-dot ${i === 0 ? "bright" : ""}`} /><span>{item}</span><time>{i === 0 ? "NOW" : `${i * 2}m AGO`}</time></div>)}</section>
           </section>
