@@ -42,10 +42,15 @@ function App() {
   const [leader, setLeader] = useState(null);
   const [sold, setSold] = useState(false);
   const [activeTeam, setActiveTeam] = useState(0);
-  const [activity, setActivity] = useState(["Auction room initialized", "Franchises are ready"]);
+  const [activity, setActivity] = useState([
+    "Auction room initialized",
+    "Franchises are ready",
+  ]);
   const [search, setSearch] = useState("");
+  const [teamData, setTeamData] = useState(teams);
+
   const player = players[playerIndex];
-  const currentTeam = teams[activeTeam];
+  const currentTeam = teamData[activeTeam];
 
   function nextPlayer() {
     setPlayerIndex((i) => (i + 1) % players.length);
@@ -55,32 +60,72 @@ function App() {
     setActivity((a) => ["Next player is on the block", ...a].slice(0, 5));
   }
 
-  function placeBid() {
-    if (sold) return;
-    const next = bid + 0.25;
-    setBid(next);
-    setLeader(currentTeam.short);
-    setActivity((a) => [
-      `${currentTeam.short} bid ₹${next.toFixed(2)} Cr`,
-      ...a,
-    ].slice(0, 5));
+function placeBid() {
+  if (sold) return;
+
+  if (leader === currentTeam.short) {
+    alert("Your team already has the highest bid!");
+    return;
   }
 
-  function sellPlayer() {
-    if (sold) {
-      nextPlayer();
-      return;
-    }
-    setSold(true);
-    setActivity((a) => [
-      `${player.name} SOLD to ${leader || currentTeam.short} for ₹${bid.toFixed(2)} Cr`,
-      ...a,
-    ].slice(0, 5));
+  const next = leader ? bid + 0.25 : player.base;
+
+  if (currentTeam.purse < next) {
+    alert("Not enough purse for this bid!");
+    return;
   }
 
-  const filteredTeams = teams.filter((team) =>
-    team.name.toLowerCase().includes(search.toLowerCase())
+  setBid(Number(next.toFixed(2)));
+  setLeader(currentTeam.short);
+
+  setActivity((a) =>
+    [`${currentTeam.short} bid ₹${next.toFixed(2)} Cr`, ...a].slice(0, 5)
   );
+}
+
+function sellPlayer() {
+  if (sold) {
+    nextPlayer();
+    return;
+  }
+
+  if (!leader) {
+    setSold(true);
+    setActivity((a) =>
+      [`${player.name} marked UNSOLD`, ...a].slice(0, 5)
+    );
+    return;
+  }
+
+  const winningTeam = teamData.find((t) => t.short === leader);
+
+  if (!winningTeam || winningTeam.purse < bid) {
+    alert("Sale failed: check team purse.");
+    return;
+  }
+
+  setTeamData((prev) =>
+    prev.map((team) =>
+      team.short === leader
+        ? {
+            ...team,
+            purse: Number((team.purse - bid).toFixed(2)),
+            spent: Number((team.spent + bid).toFixed(2)),
+            players: team.players + 1,
+          }
+        : team
+    )
+  );
+
+  setSold(true);
+  setActivity((a) =>
+    [`${player.name} SOLD to ${leader} for ₹${bid.toFixed(2)} Cr`, ...a].slice(0, 5)
+  );
+}
+
+const filteredTeams = teamData.filter((team) =>
+  team.name.toLowerCase().includes(search.toLowerCase())
+);
 
   return (
     <main className="app-shell">

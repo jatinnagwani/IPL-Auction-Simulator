@@ -14,6 +14,9 @@ app.use(
 
 app.use(express.json());
 
+const auctionRoutes = require("./routes/auctionRoutes");
+app.use("/api/auction", auctionRoutes);
+
 app.get("/api/health", (req, res) => {
   res.status(200).json({
     success: true,
