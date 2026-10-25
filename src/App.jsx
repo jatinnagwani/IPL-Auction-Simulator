@@ -42,6 +42,7 @@ function App() {
   const [leader, setLeader] = useState(null);
   const [sold, setSold] = useState(false);
   const [activeTeam, setActiveTeam] = useState(0);
+  const [purchases, setPurchases] = useState([]);
   const [activity, setActivity] = useState([
     "Auction room initialized",
     "Franchises are ready",
@@ -80,6 +81,7 @@ function resetAuction() {
   ]);
   setSearch("");
   setBidHistory([]);
+  setPurchases([]);
 }
   function nextPlayer() {
     setPlayerIndex((i) => (i + 1) % players.length);
@@ -127,13 +129,21 @@ function sellPlayer() {
     return;
   }
 
-  if (!leader) {
-    setSold(true);
-    setActivity((a) =>
-      [`${player.name} marked UNSOLD`, ...a].slice(0, 5)
-    );
-    return;
-  }
+  
+setPurchases((prev) => [
+  {
+    player: player.name,
+    team: leader,
+    price: bid,
+  },
+  ...prev,
+]);
+
+setSold(true);
+setActivity((a) =>
+  [`${player.name} SOLD to ${leader} for ₹${bid.toFixed(2)} Cr`, ...a].slice(0, 5)
+);
+
 
   const winningTeam = teamData.find((t) => t.short === leader);
 
@@ -292,6 +302,31 @@ const filteredTeams = teamData.filter((team) =>
 
             <section className="activity-card"><div className="activity-head"><h3><Activity size={17} /> Auction activity</h3><span>LIVE FEED</span></div>{activity.map((item, i) => <div className="activity-item" key={`${item}-${i}`}><span className={`activity-dot ${i === 0 ? "bright" : ""}`} /><span>{item}</span><time>{i === 0 ? "NOW" : `${i * 2}m AGO`}</time></div>)}</section>
           </section>
+
+
+<section className="activity-card">
+  <div className="activity-head">
+    <h3><Users size={17} /> Recent Purchases</h3>
+    <span>{purchases.length} SIGNED</span>
+  </div>
+
+  {purchases.length === 0 ? (
+    <p style={{ padding: "12px 0", color: "#999" }}>
+      No players purchased yet.
+    </p>
+  ) : (
+    purchases.map((item, index) => (
+      <div className="activity-item" key={`${item.player}-${index}`}>
+        <span className="activity-dot bright" />
+        <span>
+          <strong>{item.player}</strong> → {item.team}
+        </span>
+        <time>{money(item.price)}</time>
+      </div>
+    ))
+  )}
+</section>
+
 
           <aside className="right-column">
             <section className="franchise-card"><div className="right-heading"><div><span className="eyebrow">FRANCHISE OVERVIEW</span><h3>Team purses</h3></div><button className="icon-btn"><Settings2 size={17} /></button></div><label className="search-box"><Search size={16} /><input placeholder="Search franchises..." value={search} onChange={e => setSearch(e.target.value)} /></label>
