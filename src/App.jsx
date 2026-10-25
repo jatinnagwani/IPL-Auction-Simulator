@@ -328,14 +328,146 @@ const filteredTeams = teamData.filter((team) =>
 </section>
 
 
-          <aside className="right-column">
-            <section className="franchise-card"><div className="right-heading"><div><span className="eyebrow">FRANCHISE OVERVIEW</span><h3>Team purses</h3></div><button className="icon-btn"><Settings2 size={17} /></button></div><label className="search-box"><Search size={16} /><input placeholder="Search franchises..." value={search} onChange={e => setSearch(e.target.value)} /></label>
-              <div className="team-list">{filteredTeams.map(team => <div className="purse-team" key={team.short}><div className="purse-team-top"><div className="team-emblem large" style={{ "--team": team.color }}>{team.short.slice(0, 1)}</div><div className="purse-team-name"><strong>{team.name}</strong><span>{team.players} players signed</span></div><button className="dots-btn">···</button></div><div className="purse-numbers"><span>REMAINING PURSE</span><strong>{money(team.purse)}</strong></div><div className="progress-track"><i style={{ width: `${team.spent}%`, background: team.color }} /></div><div className="purse-foot"><span>₹{team.spent} Cr spent</span><span>{100 - team.spent}% left</span></div></div>)}</div>
-              <button className="view-all-btn" onClick={() => setSearch("")}>VIEW ALL FRANCHISES <ArrowUpRight size={15} /></button>
-            </section>
-            <section className="next-card"><div className="next-card-head"><span className="eyebrow">AUCTION CONTROL</span><span className="control-live"><i /> READY</span></div><h3>Keep the momentum.</h3><p>Every bid brings your dream squad closer. Make your next move count.</p><button onClick={nextPlayer}>Next player <ArrowUpRight size={16} /></button><div className="next-decoration"><Gavel size={88} /></div></section>
-            <section className="quick-stats"><div><span>YOUR SQUAD</span><strong>{currentTeam.players}<small>/ 25</small></strong></div><div><span>REMAINING PURSE</span><strong>{money(currentTeam.purse)}</strong></div><div><span>AVAILABLE SLOTS</span><strong>{25 - currentTeam.players}</strong></div></section>
-          </aside>
+
+<aside className="right-column">
+  <section className="franchise-card">
+    <div className="right-heading">
+      <div>
+        <span className="eyebrow">FRANCHISE OVERVIEW</span>
+        <h3>Team purses</h3>
+      </div>
+      <button className="icon-btn">
+        <Settings2 size={17} />
+      </button>
+    </div>
+
+    <label className="search-box">
+      <Search size={16} />
+      <input
+        placeholder="Search franchises..."
+        value={search}
+        onChange={e => setSearch(e.target.value)}
+      />
+    </label>
+
+    <div className="team-list">
+      {filteredTeams.map(team => (
+        <div className="purse-team" key={team.short}>
+          <div className="purse-team-top">
+            <div
+              className="team-emblem large"
+              style={{ "--team": team.color }}
+            >
+              {team.short.slice(0, 1)}
+            </div>
+
+            <div className="purse-team-name">
+              <strong>{team.name}</strong>
+              <span>{team.players} players signed</span>
+            </div>
+
+            <button className="dots-btn">···</button>
+          </div>
+
+          <div className="purse-numbers">
+            <span>REMAINING PURSE</span>
+            <strong>{money(team.purse)}</strong>
+          </div>
+
+          <div className="progress-track">
+            <i
+              style={{
+                width: `${team.spent}%`,
+                background: team.color
+              }}
+            />
+          </div>
+
+          <div className="purse-foot">
+            <span>₹{team.spent} Cr spent</span>
+            <span>{100 - team.spent}% left</span>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <button className="view-all-btn" onClick={() => setSearch("")}>
+      VIEW ALL FRANCHISES <ArrowUpRight size={15} />
+    </button>
+  </section>
+
+  {/* NEW FEATURE: SQUAD OVERVIEW */}
+  <section className="franchise-card">
+    <div className="right-heading">
+      <div>
+        <span className="eyebrow">SQUAD OVERVIEW</span>
+        <h3>{currentTeam.name}</h3>
+      </div>
+      <Users size={20} />
+    </div>
+
+    <div className="team-list">
+      {purchases.filter(item => item.team === currentTeam.short).length === 0 ? (
+        <p style={{ padding: "12px 0", color: "#999" }}>
+          No players purchased by this team yet.
+        </p>
+      ) : (
+        purchases
+          .filter(item => item.team === currentTeam.short)
+          .map((item, index) => (
+            <div
+              className="purse-team"
+              key={`${item.player}-${index}`}
+            >
+              <div className="purse-team-top">
+                <div className="purse-team-name">
+                  <strong>{item.player}</strong>
+                  <span>Purchased by {item.team}</span>
+                </div>
+                <strong>{money(item.price)}</strong>
+              </div>
+            </div>
+          ))
+      )}
+    </div>
+  </section>
+
+  <section className="next-card">
+    <div className="next-card-head">
+      <span className="eyebrow">AUCTION CONTROL</span>
+      <span className="control-live"><i /> READY</span>
+    </div>
+
+    <h3>Keep the momentum.</h3>
+    <p>
+      Every bid brings your dream squad closer. Make your next move count.
+    </p>
+
+    <button onClick={nextPlayer}>
+      Next player <ArrowUpRight size={16} />
+    </button>
+
+    <div className="next-decoration">
+      <Gavel size={88} />
+    </div>
+  </section>
+
+  <section className="quick-stats">
+    <div>
+      <span>YOUR SQUAD</span>
+      <strong>{currentTeam.players}<small>/ 25</small></strong>
+    </div>
+    <div>
+      <span>REMAINING PURSE</span>
+      <strong>{money(currentTeam.purse)}</strong>
+    </div>
+    <div>
+      <span>AVAILABLE SLOTS</span>
+      <strong>{25 - currentTeam.players}</strong>
+    </div>
+  </section>
+</aside>
+
         </div>
         <footer className="footer"><span>IPL AUCTION SIMULATOR <i>•</i> SEASON 2026</span><span>BUILT FOR THE LOVE OF THE GAME <span className="footer-heart">♥</span></span></footer>
       </section>
